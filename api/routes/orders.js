@@ -15,14 +15,19 @@ router.get("/:order", (req, res, next) => {
 });
 
 router.post("/", (req, res, next) => {
+  const order = {
+    product: req.body.product,
+    quantity: req.body.quantity
+  };
   res.status(201).json({
-    message: "Order was created"
+    message: "Order was created",
+    order
   })
 });
 
 router.patch("/:order", (req, res, next) => {
   res.status(200).json({
-    message: "Updated order!"
+    message: "Updated order!",
   });
 });
 
