@@ -1,4 +1,7 @@
 const app = require("express")();
+const mongoose = require("mongoose");
+
+mongoose.connect(`mongodb+srv://admin:${process.env.mongodbPassword}@julianfr-academind-node-shop-large.mongodb.net/test?retryWrites=true`)
 
 app.use(require("morgan")("dev"));
 app.use(require("body-parser").urlencoded({ extended: false }));
