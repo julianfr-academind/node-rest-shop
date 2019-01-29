@@ -3,7 +3,6 @@ const router = express.Router();
 const Product = require("../models/product");
 const mongoose = require("mongoose");
 
-
 router.get("/", (req, res, next) => {
   Product
     .find()
@@ -72,7 +71,9 @@ router.patch("/:product", (req, res, next) => {
   for (let update of Object.keys(req.body)) updates[update] = req.body[update];
 
   Product.update({ _id }, { $set: updates })
-    .then(product => res.status(200).json(product))
+    .then(product => res.status(200).json({
+      product
+    }))
     .catch(error => res.status(500).json({ error }));
 });
 
