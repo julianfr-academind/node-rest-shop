@@ -8,7 +8,19 @@ router.get("/", (req, res, next) => {
   Product
     .find()
     .then(products => {
-      if (products.length > 0) res.status(200).json(products)
+      if (products.length > 0) res.status(200).json({
+        count: products.length,
+        products: products.map(product => {
+          return {
+            name: product.name,
+            price: product.price,
+            request: {
+              type: "GET",
+              url: `http://127.0.0.1:3000/products/${product._id}`
+            }
+          }
+        })
+      })
       else res.status(200).json({ message: "No entries found!" })
     })
     .catch(error => res.status(500).json({ error }))
@@ -16,8 +28,18 @@ router.get("/", (req, res, next) => {
 
 router.get("/:product", (req, res, next) => {
   Product.findById(req.params.product)
+    .select("name price")
     .then(product => {
-      if (product) res.status(200).json(product)
+      if (product) res.status(200).json({
+        name: product.name,
+        price: product.price,
+        id: product._id,
+        request: {
+          type: "GET",
+          description: "Get all products",
+          url: "http://127.0.0.1:3000/products",
+        }
+      })
       else res.status(404).json({ message: "Product not found" })
     })
     .catch(error => res.status(500).json({ error }));
@@ -29,7 +51,16 @@ router.post("/", (req, res, next) => {
     name: req.body.name,
     price: req.body.price,
   }).save()
-    .then(product => res.status(201).json({ message: "Product was created", product }))
+    .then(product => res.status(201).json({
+      message: "Product was created",
+      name: product.name,
+      price: product.price,
+      _id: product._id,
+      request: {
+        type: "POST",
+        url: `http://127.0.0.1:3000/products/${product._id}`,
+      },
+    }))
     .catch(error => res.status(500).json({ error }));
 
 });
