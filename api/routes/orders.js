@@ -9,19 +9,18 @@ router.get("/", (req, res, next) => {
   Order
     .find()
     .select("-__v")
+    .populate("product", "name")
     .then(orders => res.status(200).json({
       count: orders.length,
-      orders: orders.map(order => {
-        return {
-          _id: order._id,
-          product: order.product,
-          quantity: order.quantity,
-          request: {
-            type: "GET",
-            url: `http://127.0.0.1:3000/orders/${order._id}`
-          }
+      orders: orders.map(order => ({
+        _id: order._id,
+        product: order.product,
+        quantity: order.quantity,
+        request: {
+          type: "GET",
+          url: `http://127.0.0.1:3000/orders/${order._id}`
         }
-      }),
+      })),
     }))
     .catch(error => res.status(500).json({ error }));
 });
@@ -30,35 +29,30 @@ router.get("/:order", (req, res, next) => {
   Order
     .findById(req.params.order)
     .select("-__v")
-    .then(order => {
-      if (order) {
-        res.status(200).json({
-          order: order,
-          request: {
-            type: "GET",
-            url: `http://127.0.0.1:3000/orders`,
-          }
-        })
-      } else {
-        return res.status(404).message({ message: "Order not found" })
-      }
-    });
+    .populate("product")
+    .then(order => order
+      ? res.status(200).json({
+        order: order,
+        request: {
+          type: "GET",
+          url: `http://127.0.0.1:3000/orders`,
+        }
+      })
+      : res.status(404).message({ message: "Order not found" })
+    );
 });
 
 router.post("/", (req, res, next) => {
   Product
     .findById(req.body.product)
-    .then(product => {
-      if (product) {
-        return new Order({
-          _id: new mongoose.Types.ObjectId(),
-          product: product._id,
-          quantity: req.body.quantity,
-        }).save();
-      } else {
-        return res.status(404).json({ message: "Product not found" });
-      }
-    })
+    .then(product => product
+      ? new Order({
+        _id: new mongoose.Types.ObjectId(),
+        product: product._id,
+        quantity: req.body.quantity,
+      }).save()
+      : res.status(404).json({ message: "Product not found" })
+    )
     .then(order => res.status(201).json({
       message: "Order was created",
       request: {
