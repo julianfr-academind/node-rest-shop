@@ -1,10 +1,10 @@
-const app = require("express")();
 const mongoose = require("mongoose");
+const app = require("express")();
+app.use("/uploads", require("express").static("./uploads"));
 
 mongoose.connect(`mongodb+srv://admin:${process.env.mongodbPassword}@julianfr-academind-node-shop-large.mongodb.net/test?retryWrites=true`, { useNewUrlParser: true });
 
 app.use(require("morgan")("dev"));
-app.use("/uploads", require("express").static("./uploads"));
 app.use(require("body-parser").urlencoded({ extended: false }));
 app.use(require("body-parser").json());
 
@@ -20,6 +20,7 @@ app.use((req, res, next) => {
 
 app.use("/products", require("./api/routes/products"));
 app.use("/orders", require("./api/routes/orders"));
+app.use("/users", require("./api/routes/user"));
 
 app.use((req, res, next) => {
   const error = new Error("Not found");
