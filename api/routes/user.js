@@ -2,6 +2,7 @@ const router = require("express").Router();
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const checkAuth = require("../middleware/check-auth");
 
 const User = require("../models/user");
 
@@ -50,7 +51,7 @@ router.post("/login", (req, res, next) => {
     })
 })
 
-router.delete("/:user", (req, res, next) => {
+router.delete("/:user", checkAuth, (req, res, next) => {
   User
     .deleteOne({ _id: req.params.user })
     .then(user => res.status(200).json({ message: "User was deleted" }))

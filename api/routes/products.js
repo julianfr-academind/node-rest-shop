@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const Product = require("../models/product");
 const mongoose = require("mongoose");
+const checkAuth = require("../middleware/check-auth");
 
 const storage = require("multer").diskStorage({
   destination: function (req, file, cb) {
@@ -62,7 +63,7 @@ router.get("/:product", (req, res, next) =>
     .catch(error => res.status(500).json({ error }))
 );
 
-router.post("/", upload.single("image"), (req, res, next) => {
+router.post("/", checkAuth, upload.single("image"), (req, res, next) => {
   console.log(req.file);
   new Product({
     _id: new mongoose.Types.ObjectId(),
@@ -80,7 +81,7 @@ router.post("/", upload.single("image"), (req, res, next) => {
     .catch(error => res.status(500).json({ error }))
 });
 
-router.patch("/:product", (req, res, next) => {
+router.patch("/:product", checkAuth, (req, res, next) => {
   const _id = req.params.product;
   const updates = {};
 
@@ -91,7 +92,7 @@ router.patch("/:product", (req, res, next) => {
     .catch(error => res.status(500).json({ error }));
 });
 
-router.delete("/:product", (req, res, next) => {
+router.delete("/:product", checkAuth, (req, res, next) => {
   Product.remove({ _id: req.params.product })
     .then(product => res.status(200).json(product))
     .catch(error => res.status(500).json({ error }))
